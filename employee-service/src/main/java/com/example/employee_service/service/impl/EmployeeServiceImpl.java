@@ -13,7 +13,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
-    } // <-- මෙන්න මේ brace එක වැහිලා තිබුණේ නෑ
+    }
 
     @Override
     public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
@@ -33,5 +33,16 @@ public class EmployeeServiceImpl implements EmployeeService {
                 savedEmployee.getEmail()
         );
         return savedEmployeeDto;
+    }
+
+    @Override
+    public EmployeeDto getEmployeeById(Long id) {
+        Employee employee = employeeRepository.findById(id).get();
+        EmployeeDto employeeDto = new EmployeeDto(
+                employee.getId(),
+                employee.getFirstname(),
+                employee.getLastname(),employee.getEmail()
+        );
+        return employeeDto;
     }
 }
