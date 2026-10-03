@@ -3,10 +3,12 @@ package com.example.employee_service.service.impl;
 import com.example.employee_service.dto.ApiResponseDto;
 import com.example.employee_service.dto.DepartmentDto;
 import com.example.employee_service.dto.EmployeeDto;
+import com.example.employee_service.dto.OrganizationDto;
 import com.example.employee_service.entity.Employee;
 import com.example.employee_service.repository.EmployeeRepository;
 import com.example.employee_service.service.APIClient;
 import com.example.employee_service.service.EmployeeService;
+import com.example.employee_service.service.OrganizationAPIClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +24,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeServiceImpl.class);
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+
 //    @Autowired
 //    private RestTemplate restTemplate;
 
@@ -33,10 +34,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private APIClient apiClient;
 
+    @Autowired
+    private OrganizationAPIClient organizationAPIClient;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
-    }
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
     @Override
     public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
@@ -47,7 +49,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employeeDto.getFirstname(),
                 employeeDto.getLastname(),
                 employeeDto.getEmail(),
-                employeeDto.getDepartmentCode()
+                employeeDto.getDepartmentCode(),
+                employeeDto.getOrganizationCode()
         );
         Employee savedEmployee = employeeRepository.save(employee);
 
@@ -56,7 +59,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 savedEmployee.getFirstname(),
                 savedEmployee.getLastname(),
                 savedEmployee.getEmail(),
-                savedEmployee.getDepartmentCode()
+                savedEmployee.getDepartmentCode(),
+                savedEmployee.getOrganizationCode()
         );
         return savedEmployeeDto;
     }
@@ -85,8 +89,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
         //COMMUNICATE WITH OPEN FEIGN
-
         DepartmentDto departmentDto = apiClient.getDepartment(employee.getDepartmentCode());
+
+        OrganizationDto organizationDto = organizationAPIClient.getOrganization(employee.getOrganizationCode());
 
 
         EmployeeDto employeeDto = new EmployeeDto(
@@ -94,12 +99,15 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employee.getFirstname(),
                 employee.getLastname(),
                 employee.getEmail(),
-                employee.getDepartmentCode()
+                employee.getDepartmentCode(),
+                employee.getOrganizationCode()
         );
 
         ApiResponseDto apiResponseDto = new ApiResponseDto();
+
         apiResponseDto.setEmployeeDto(employeeDto);
         apiResponseDto.setDepartmentDto(departmentDto);
+        apiResponseDto.setOrganizationDto(organizationDto);
 
         return apiResponseDto;
     }
@@ -118,7 +126,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employee.getFirstname(),
                 employee.getLastname(),
                 employee.getEmail(),
-                employee.getDepartmentCode()
+                employee.getDepartmentCode(),
+                employee.getOrganizationCode()
         );
 
         ApiResponseDto apiResponseDto = new ApiResponseDto();
